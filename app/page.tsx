@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 export default function HomePage() {
   return (
     <div className="container py-10">
-      <h1 className="text-4xl font-bold mb-8 text-center">Scheduling App</h1>
+      <h1 className="text-4xl font-bold mb-8 text-center">Scheduling App Test 1</h1>
       <CalendarView />
     </div>
   )
