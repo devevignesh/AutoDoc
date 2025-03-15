@@ -5,13 +5,13 @@
 // Confluence configuration
 export const CONFLUENCE_CONFIG = {
   // The Confluence space ID where documentation will be stored
-  SPACE_ID: process.env.CONFLUENCE_DOCUMENTATION_SPACE_ID || "",
+  SPACE_ID: process.env.CONFLUENCE_DOCUMENTATION_SPACE_ID,
   
   // The parent page ID under which all documentation pages will be created
-  PARENT_PAGE_ID: process.env.CONFLUENCE_DOCUMENTATION_PARENT_PAGE_ID || "",
+  PARENT_PAGE_ID: process.env.CONFLUENCE_DOCUMENTATION_PARENT_PAGE_ID,
   
   // Base URL for the Confluence instance
-  BASE_URL: process.env.CONFLUENCE_BASE_URL || "https://your-domain.atlassian.net",
+  BASE_URL: process.env.CONFLUENCE_BASE_URL,
   
   // API version to use
   API_VERSION: "v2"
@@ -62,11 +62,3 @@ export const AI_CONFIG = {
   // Temperature for AI requests
   TEMPERATURE: 0.2
 };
-
-// Export all configurations
-export default {
-  CONFLUENCE: CONFLUENCE_CONFIG,
-  GIT: GIT_CONFIG,
-  DOC: DOC_CONFIG,
-  AI: AI_CONFIG
-}; 

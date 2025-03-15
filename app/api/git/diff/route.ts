@@ -25,12 +25,17 @@ export async function GET(request: NextRequest) {
     }
 
     // Get the diff for the specific commit
-    const { stdout } = await execPromise(`git show --pretty=format:"%h - %an, %ar : %s" --patch ${commitHash}`);
+    const { stdout: diffOutput } = await execPromise(`git show --pretty=format:"%h - %an, %ar : %s" --patch ${commitHash}`);
+    
+    // Get the list of files changed in this commit
+    const { stdout: filesOutput } = await execPromise(`git show --pretty=format:"" --name-only ${commitHash}`);
+    const files = filesOutput.trim().split('\n').filter(line => line.trim() !== '');
     
     return NextResponse.json({ 
       success: true,
-      commit: commitHash,
-      diff: stdout 
+      commitId: commitHash,
+      diff: diffOutput,
+      files
     });
   } catch (error) {
     console.error('Error fetching git diff:', error);

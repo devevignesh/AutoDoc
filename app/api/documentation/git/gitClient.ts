@@ -9,13 +9,31 @@ import { DOC_CONFIG } from '../config';
  */
 export async function getCommitInfo(commitId: string): Promise<CommitInfo> {
   try {
-    const response = await fetch(`/api/git/commit?id=${commitId}`);
+    const response = await fetch(`/api/git/commits?id=${commitId}`);
     
     if (!response.ok) {
       throw new Error(`Failed to get commit info: ${response.statusText}`);
     }
     
-    return await response.json();
+    const data = await response.json();
+    
+    if (!data.success) {
+      throw new Error(`Failed to get commit info: ${data.error || 'Unknown error'}`);
+    }
+    
+    // Extract the commit info from the response
+    const commitInfo: CommitInfo = {
+      id: data.id,
+      message: data.commit.message,
+      author: {
+        name: data.commit.author,
+        email: data.commit.email
+      },
+      timestamp: data.commit.timestamp,
+      files: data.commit.files
+    };
+    
+    return commitInfo;
   } catch (error) {
     console.error('Error getting commit info:', error);
     throw new Error(`Failed to get commit info: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -30,7 +48,7 @@ export async function getCommitInfo(commitId: string): Promise<CommitInfo> {
  */
 export async function getCommitDiff(commitId: string): Promise<DiffInfo> {
   try {
-    const response = await fetch(`/api/git/diff?commitId=${commitId}`);
+    const response = await fetch(`/api/git/diff?commit=${commitId}`);
     
     if (!response.ok) {
       throw new Error(`Failed to get commit diff: ${response.statusText}`);
@@ -62,7 +80,13 @@ export async function getFileContent(filePath: string, commitId?: string): Promi
       throw new Error(`Failed to get file content: ${response.statusText}`);
     }
     
-    return await response.text();
+    const data = await response.json();
+    
+    if (!data.success) {
+      throw new Error(`Failed to get file content: ${data.error || 'Unknown error'}`);
+    }
+    
+    return data.content;
   } catch (error) {
     console.error('Error getting file content:', error);
     throw new Error(`Failed to get file content: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -83,7 +107,13 @@ export async function getFileDependencies(filePath: string): Promise<string[]> {
       throw new Error(`Failed to get file dependencies: ${response.statusText}`);
     }
     
-    return await response.json();
+    const data = await response.json();
+    
+    if (!data.success) {
+      throw new Error(`Failed to get file dependencies: ${data.error || 'Unknown error'}`);
+    }
+    
+    return data.dependencies;
   } catch (error) {
     console.error('Error getting file dependencies:', error);
     return [];

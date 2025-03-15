@@ -8,5 +8,5 @@ if [ -f .env.local ]; then
   export $(grep -v '^#' .env.local | xargs)
 fi
 
-# Run the TypeScript script with ts-node
-npx ts-node scripts/generate-docs.ts "$@" 
+# Run the TypeScript script with ts-node ESM support
+node --loader ts-node/esm scripts/generate-docs.ts "$@" 

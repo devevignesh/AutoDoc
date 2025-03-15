@@ -2,9 +2,7 @@ import axios from 'axios';
 import { CONFLUENCE_CONFIG } from '../config';
 import { 
   ConfluenceCredentials, 
-  ConfluencePage, 
-  ConfluencePageRequest, 
-  ConfluencePageUpdateRequest 
+  ConfluencePage
 } from '../types';
 
 /**
