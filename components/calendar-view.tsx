@@ -76,7 +76,7 @@ export default function CalendarView() {
             mode="single"
             selected={date}
             onSelect={setDate}
-            className="rounded-md border"
+            className="rounded-md border border-gray-300"
             // Highlight dates with appointments
             modifiers={{
               booked: appointments.map((app) => new Date(app.date)),
