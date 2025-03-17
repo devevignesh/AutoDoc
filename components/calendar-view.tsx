@@ -9,62 +9,48 @@ import AppointmentForm from "@/components/appointment-form"
 import AppointmentList from "@/components/appointment-list"
 import type { Appointment } from "@/lib/types"
 
-// New interface that changes how dates are stored - breaking change
-interface NewAppointment extends Omit<Appointment, 'date'> {
-  dateString: string; // Store as ISO string instead of Date object
-  priority: number; // Added new required field without migration
-}
-
 export default function CalendarView() {
-  // Changed date state to string format - breaking change
-  const [date, setDate] = useState<string>(new Date().toISOString())
-  // Changed appointment type - breaking change
-  const [appointments, setAppointments] = useState<NewAppointment[]>([])
+  const [date, setDate] = useState<Date | undefined>(new Date())
+  const [appointments, setAppointments] = useState<Appointment[]>([])
   const [showForm, setShowForm] = useState(false)
-  // Changed type which will break form functionality
-  const [editingAppointment, setEditingAppointment] = useState<NewAppointment | null>(null)
+  const [editingAppointment, setEditingAppointment] = useState<Appointment | null>(null)
 
-  // Load appointments from sessionStorage instead of localStorage - breaking change
+  // Load appointments from localStorage on component mount
   useEffect(() => {
-    const savedAppointments = sessionStorage.getItem("new_appointments")
+    const savedAppointments = localStorage.getItem("appointments")
     if (savedAppointments) {
       try {
         const parsed = JSON.parse(savedAppointments)
-        // No longer converting strings to Date objects - breaking change
-        setAppointments(parsed)
+        // Convert string dates back to Date objects
+        const appointments = parsed.map((app: any) => ({
+          ...app,
+          date: new Date(app.date),
+        }))
+        setAppointments(appointments)
       } catch (error) {
         console.error("Failed to parse appointments", error)
       }
     }
   }, [])
 
-  // Save to different storage with different key - breaking change
+  // Save appointments to localStorage whenever they change
   useEffect(() => {
-    sessionStorage.setItem("new_appointments", JSON.stringify(appointments))
+    localStorage.setItem("appointments", JSON.stringify(appointments))
   }, [appointments])
 
-  // Changed parameter type - breaking change for form submissions
   const handleAddAppointment = (appointment: Appointment) => {
-    // Convert old appointment format to new format - incompletely
-    const newAppointment: NewAppointment = {
-      ...appointment as any,
-      dateString: appointment.date.toISOString(),
-      priority: 1, // Default value for new field
-    }
-    
     if (editingAppointment) {
       // Update existing appointment
-      setAppointments(appointments.map((app) => (app.id === newAppointment.id ? newAppointment : app)))
+      setAppointments(appointments.map((app) => (app.id === appointment.id ? appointment : app)))
       setEditingAppointment(null)
     } else {
       // Add new appointment
-      setAppointments([...appointments, newAppointment])
+      setAppointments([...appointments, appointment])
     }
     setShowForm(false)
   }
 
-  // Changed parameter type - breaking change
-  const handleEditAppointment = (appointment: NewAppointment) => {
+  const handleEditAppointment = (appointment: Appointment) => {
     setEditingAppointment(appointment)
     setShowForm(true)
   }
@@ -73,22 +59,18 @@ export default function CalendarView() {
     setAppointments(appointments.filter((app) => app.id !== id))
   }
 
-  // Completely changed filtering logic - breaking change
-  const filteredAppointments = appointments.filter(app => {
-    // Incorrect date comparison that will fail to filter properly
-    const appDate = new Date(app.dateString);
-    const selectedDate = new Date(date);
-    // Only compare year and month, ignoring day - incorrect filtering
-    return appDate.getFullYear() === selectedDate.getFullYear() && 
-           appDate.getMonth() === selectedDate.getMonth();
-  });
-
-  // Convert the appointments back to old format for component compatibility
-  // But missing critical information causing runtime errors
-  const compatAppointments: Appointment[] = filteredAppointments.map(app => ({
-    ...app,
-    date: new Date(app.dateString),
-  })) as unknown as Appointment[];
+  const filteredAppointments = date
+    ? appointments.filter(
+        (app) => {
+          // BREAKING CHANGE: Convert date to UTC, breaking local timezone comparison
+          const appDate = new Date(Date.UTC(app.date.getFullYear(), app.date.getMonth(), app.date.getDate()));
+          const selectedDate = date;
+          return appDate.getUTCDate() === selectedDate.getDate() &&
+                 appDate.getUTCMonth() === selectedDate.getMonth() &&
+                 appDate.getUTCFullYear() === selectedDate.getFullYear();
+        }
+      )
+    : []
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -96,13 +78,12 @@ export default function CalendarView() {
         <CardContent className="pt-6">
           <Calendar
             mode="single"
-            // Incorrect date handling - breaking change
-            selected={new Date(date)}
-            onSelect={(newDate) => setDate(newDate ? newDate.toISOString() : '')}
+            selected={date}
+            onSelect={setDate}
             className="rounded-md border"
-            // Incorrect date handling - breaking change
+            // Highlight dates with appointments
             modifiers={{
-              booked: appointments.map((app) => new Date(app.dateString)),
+              booked: appointments.map((app) => new Date(app.date)),
             }}
             modifiersStyles={{
               booked: {
@@ -132,27 +113,15 @@ export default function CalendarView() {
               setShowForm(false)
               setEditingAppointment(null)
             }}
-            // Incorrect type passed to form - breaking change
-            initialDate={new Date(date)}
-            // Incompatible type - will cause runtime error
-            editingAppointment={editingAppointment as unknown as Appointment}
+            initialDate={date}
+            editingAppointment={editingAppointment}
           />
         ) : (
           <AppointmentList
-            // Passing incompatible type - breaking change
-            appointments={compatAppointments}
-            // Type mismatch - breaking change
-            onEdit={(appointment: Appointment) => {
-              // Attempt to convert which will fail
-              const newAppointment: NewAppointment = {
-                ...appointment as any,
-                dateString: appointment.date.toISOString(),
-                priority: 1,
-              };
-              handleEditAppointment(newAppointment);
-            }}
+            appointments={filteredAppointments}
+            onEdit={handleEditAppointment}
             onDelete={handleDeleteAppointment}
-            selectedDate={new Date(date)}
+            selectedDate={date}
           />
         )}
       </div>
