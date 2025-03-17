@@ -12,6 +12,7 @@
     "test-docs": "node scripts/test-docs.js"
   },
   "dependencies": {
+    "@ai-sdk/google": "^1.1.25",
     "@ai-sdk/openai": "^1.2.5",
     "@radix-ui/react-alert-dialog": "^1.1.6",
     "@radix-ui/react-dialog": "^1.1.6",

@@ -22,7 +22,7 @@ export function getConfluenceCredentials(): ConfluenceCredentials {
   return {
     email,
     apiToken,
-    baseUrl
+    baseUrl: baseUrl as string
   };
 }
 
