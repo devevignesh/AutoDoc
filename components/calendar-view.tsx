@@ -22,7 +22,7 @@ export default function CalendarView() {
       try {
         const parsed = JSON.parse(savedAppointments)
         // Convert string dates back to Date objects
-        const appointments = parsed.map((app: any) => ({
+        const appointments = parsed.map((app: Appointment) => ({
           ...app,
           date: new Date(app.date),
         }))

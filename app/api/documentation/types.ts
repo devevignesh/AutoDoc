@@ -9,6 +9,7 @@ export interface DocumentationRequest {
   filePath?: string;
   spaceId: string;
   parentPageId?: string;
+  pageId?: string;
 }
 
 // Result types
