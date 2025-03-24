@@ -75,11 +75,25 @@ Request body:
 ```json
 {
   "action": "update",
+  "pageId": "123456",
   "commitId": "abc123def456",
-  "spaceId": "SPACEID",
-  "parentPageId": "123456"
+  "spaceId": "SPACEID"
 }
 ```
+
+The update workflow will:
+1. Validate that a valid page ID and commit ID are provided
+2. Retrieve the commit details and diff to identify changed files
+3. Analyze the page content to determine which file it's documenting
+4. If the file was changed in the commit, update the documentation with those changes
+5. Add a "Change History" section with commit IDs as citations for proper version tracking
+6. Update the Confluence page with the new content
+
+How it works:
+- The system identifies which file the documentation page corresponds to (based on page title/content)
+- It retrieves the file content at the specific commit and analyzes the changes
+- It updates the documentation to reflect those changes, including a history section
+- No file path is needed as the system determines this automatically from the page and commit
 
 ### Webhook Endpoint
 
