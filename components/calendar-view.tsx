@@ -59,31 +59,31 @@ export default function CalendarView() {
     setAppointments(appointments.filter((app) => app.id !== id))
   }
 
-  // const filteredAppointments = date
-  //   ? appointments.filter(
-  //       (app) => {
-  //         // BREAKING CHANGE: Convert date to UTC, breaking local timezone comparison
-  //         const appDate = new Date(Date.UTC(app.date.getFullYear(), app.date.getMonth(), app.date.getDate()));
-  //         const selectedDate = date;
-  //         return appDate.getUTCDate() === selectedDate.getDate() &&
-  //                appDate.getUTCMonth() === selectedDate.getMonth() &&
-  //                appDate.getUTCFullYear() === selectedDate.getFullYear();
-  //       }
-  //     )
-  //   : []
-
   const filteredAppointments = date
     ? appointments.filter(
         (app) => {
-          // Normalize both dates to compare just the date parts (year/month/day)
-          const appDate = new Date(app.date.getFullYear(), app.date.getMonth(), app.date.getDate());
-          const selectedDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-          return appDate.getDate() === selectedDate.getDate() &&
-                 appDate.getMonth() === selectedDate.getMonth() &&
-                 appDate.getFullYear() === selectedDate.getFullYear();
+          // BREAKING CHANGE: Convert date to UTC, breaking local timezone comparison
+          const appDate = new Date(Date.UTC(app.date.getFullYear(), app.date.getMonth(), app.date.getDate()));
+          const selectedDate = date;
+          return appDate.getUTCDate() === selectedDate.getDate() &&
+                 appDate.getUTCMonth() === selectedDate.getMonth() &&
+                 appDate.getUTCFullYear() === selectedDate.getFullYear();
         }
       )
     : []
+
+  // const filteredAppointments = date
+  //   ? appointments.filter(
+  //       (app) => {
+  //         // Normalize both dates to compare just the date parts (year/month/day)
+  //         const appDate = new Date(app.date.getFullYear(), app.date.getMonth(), app.date.getDate());
+  //         const selectedDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  //         return appDate.getDate() === selectedDate.getDate() &&
+  //                appDate.getMonth() === selectedDate.getMonth() &&
+  //                appDate.getFullYear() === selectedDate.getFullYear();
+  //       }
+  //     )
+  //   : []
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
